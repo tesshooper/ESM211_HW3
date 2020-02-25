@@ -2,7 +2,9 @@
 title: "Hooper_ESM211_HW3"
 author: "Tess Hooper"
 date: "2/18/2020"
-output: html_document
+output:
+  word_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -17,7 +19,7 @@ library(primer)
 
 ### 1. Make a matrix for Loggerhead Turtle population  
 
-**1.1. Make and print matrix,**
+**1.1. Make and print matrix**
 ```{r}
 
 class_names <- c("Egg", "Sm Juv", "Lg Juv", "Subadult", "Adult")
@@ -37,6 +39,8 @@ print(A)
   
 **1.2. Print out subets of A.**
 ```{r}
+
+## Matrix are first presented by ROW then COLUMN
 
 
 # Print subset for row 4, column 3
@@ -138,7 +142,7 @@ stage.vector.plot(pop$stage.vector, proportions = FALSE, log = "y")
 #If the population has not reached the SSD, run the simulation for longer. How many years are required before the population appears to be at the SSD?
 
 # Increase # of iterations from 10 to 20 to see if population reaches the SSD
-pop_SSD <- pop.projection(A, n_0, iterations = 20)
+pop_SSD <- pop.projection(A, n_0, iterations = 50)
 
 # Plot stage classes using log scale using actual abundance and not proportions:
 stage.vector.plot(pop_SSD$stage.vector, proportions = FALSE, log = "y")
@@ -186,11 +190,11 @@ Lambda gives us the stable slope for the entire time series (10 iterations). All
 *a. Which element of the projection matrix represents egg/hatchling survival? Which represents adult survival?*  
 ```{r}
 
-A[2,1] #survival of eggs to small juveniles --> 2nd column, first row
+A[2,1] #survival of eggs to small juveniles --> 2nd row, 1st column
 # 0.675
 
 
-A[5,5] #survival of adults (from adults, to adults) --> 5th column, 5th row
+A[5,5] #survival of adults (from adults, to adults) --> 5th row, 5th column
 # 0.8091
 
 ```
@@ -216,7 +220,7 @@ nrow = 5, ncol = 5, byrow = TRUE, dimnames = list(class_names, class_names))
 # Plot 
 n_0 <- c(1000, 10, 10, 10, 10) # Initial abundance
 
-pop_juvenile <- pop.projection(A_juvenile, n_0, iterations = 10) # Project the matrix forward. Package also provides plotting routine
+pop_juvenile <- pop.projection(A_juvenile, n_0, iterations = 20) # Project the matrix forward. Package also provides plotting routine
 
 stage.vector.plot(pop_juvenile$stage.vector) # Plot each stage through time (proportion of each stage). Quickly population comes to be dominated by small juveniles. 
 
@@ -314,8 +318,8 @@ help(DemoInfo)
 # SSD = vector of stable age/stage structure
 # RV = vector of reproductive value
 # Sensitivities = A matrix of sensitivities --> shows how much lambda will increase given a unit increase of that matrix element
-# Elasticities = a matrix of elasticities 
-# PPM = population projection matrix
+# Elasticities = a matrix of elasticities --> proportional sensitivity
+# PPM = population projection matrix 
 
 
 # lambda = 0.9515489
@@ -324,6 +328,7 @@ help(DemoInfo)
 # 0.08165216 slope of lambda at A1,2
 
 ```
+
 
 <br>
 
@@ -334,27 +339,37 @@ help(DemoInfo)
 demo$Sensitivities
 
 demo$Elasticities
+
+
+```
+ 
+  
+  When we look at the sensitivity output, [5, 2] causes the greatest change to λ (value of 68.3). However, the sensitivity matrix gives us values for life cycle stage transitions that the turtle does not undergo. Given this, the actual sensitivity matrix element that is most influential on λ for loggerhead is [4,3]. Looking at the elasticity matrix, the element that will be most influential on λ is [5,5].
+
+<br>
+
+
+**4.3. Compare the elasticity matrix with Fig. 1 in Crowder et al. (1994). Do you understand where the values in the figure come from?**  
+The Crowder et al. (1994) article presents the elasticity of λ to changes in reproductive output, survival while remaining in the same stage, and survival with growth into the next life stage. 
+
+ <br>
+
+
+**4.4. Look at the sensitivity matrix produced by DemoInfo. What does the sensitivity for element a5,1 represent? Does it make sense to have a non-zero value here? Why or why not?**  
+```{r}
+
+demo$Sensitivities
+
+
+# [5,1] = 21.15
 ```
   
-  
-The sensitvity element that is the most influential on λ is [4,3], while [5,2] is larger, it is not a transition that the turtle undergoes. 
-
-The elasticity element that is the most influential on λ is [5,5]
-<br>
-
-
-**4.3. Compare the elasticity matrix with Fig. 1 in Crowder et al. (1994). Do you understand where the values in the figure come from?**
+The sensitivity element [5, 1] represents an egg directly becoming an adult. This is not a transition that the turtles undergo. Therefore, having a non-zero value here (25.15) in the sensitivity matrix does not make sense. We should expect to see a zero value. 
 
 <br>
+<br>
 
-
-**4.4. Look at the sensitivity matrix produced by DemoInfo. What does the sensitivity for element a5,1 represent? Does it make sense to have a non-zero value here? Why or why not?**
-
-
-
-
-
-***Notes from Class***
+***Miscellaneous Notes from Class***
 + Population is declining - lambda is less than one
 + Every year you multiply the population by lambda to get next years population --> 5% decline every year 
 + We want to get lambda greater than one so we don't have decline. What do we do to change lambda? 
