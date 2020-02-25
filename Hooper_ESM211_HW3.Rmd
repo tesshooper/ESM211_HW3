@@ -1,0 +1,117 @@
+---
+title: "Hooper_ESM211_HW3"
+author: "Tess Hooper"
+date: "2/18/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Load packages
+library(tidyverse)
+library(popbio) 
+```
+
+1. Make a matrix for Loggerhead Turtle population
+```{r}
+
+class_names <- c("Egg", "Sm Juv", "Lg Juv", "Subadult", "Adult")
+A <- matrix(c(0, 0, 0, 4.665, 61.896,
+               0.675, 0.703, 0, 0, 0,
+               0, 0.047, 0.657, 0, 0,
+               0, 0, 0.019, 0.682, 0,
+              0, 0, 0, 0.061, 0.809),
+nrow = 5, ncol = 5, byrow = TRUE, dimnames = list(class_names, class_names))
+
+# Eggs per subadult and eggs per adult
+
+print(A)
+```
+
+
+2. Project the population matrix
+```{r}
+
+n_0 <- c(1000, 10, 10, 10, 10) # Initial abundance
+
+pop <- pop.projection(A, n_0, iterations = 10) # Project the matrix forward. Package also provides plotting routine
+
+stage.vector.plot(pop$stage.vector) # Plot each stage through time (proportion of each stage). Quickly population comes to be dominated by small juveniles. 
+
+#By default, the above code plots the proportions in each stage through time. To see the actual abundances, use
+stage.vector.plot(pop$stage.vector, proportions = FALSE) # We see dcline in egg, big increase in small juveniles. 
+
+
+# This is N0 - to get N1 take A %*% n_0 - can do this in console
+
+n_1 <- A %*% n_0
+
+n_2 <- A %*% n_1
+
+# Total number of individauls across all the stages (pop$pop.sizes)
+plot(pop$pop.sizes)
+
+help("pop.projection")
+
+# ALl stages would be increasing or decreasing at same rate if we were at stable stage distriubtion (SSD)
+
+# Proportional change in population size
+plot(pop$pop.changes)
+
+```
+
+Look at stage classes using log scale
+
+```{r}
+
+stage.vector.plot(pop$stage.vector, proportions = FALSE, log = "y")
+
+# Log scale versus non-log scale: Changing exponentially - on log scale that is a straight line. This is visually more easy to assess. Hard to eyeball exponential curves. Proportions of each stage will tell you if we've reached SSD but won't tell us the numbers (?) 
+
+pop_project <- pop.projection(A, n_0, iterations = 20) # project matrix
+
+stage.vector.plot(pop$stage.vector, proportions = FALSE, log = "y")
+
+```
+
+
+
+Population is declining - lambda is less than one
+Every year you multiply the population by lambda to get next years population --> 5% decline every year 
+- We want to get lambda greater than one so we don't have decline. What do we do to change lambda? 
+- Anthropogenic impact on beaches (poaching, other threats to hatchlings, like artifial light, etc). Reducing these threats could increase survival of egg stage. Bycatch is reducing survival of adult sea turtles, so reducing bycatch would increase survival of adults and increase reproducibility
+- What part of population matrix represents survival of egg stage? ---> 0.675 - from egg to small juveniles. If we wanted to simulate reducing threats to nesting beach, we could increase this term to represent higher survival from egg to small juvenile. 
+- What about adult survival? ---> 0.8091. Increase this term 
+
+
+### Create new matrix for increased survivability of hatchlings
+```{r}
+
+class_names <- c("Egg", "Sm Juv", "Lg Juv", "Subadult", "Adult")
+A_juvenile <- matrix(c(0, 0, 0, 4.665, 61.896,
+                      1.5, 0.703, 0, 0, 0,
+                        0, 0.047, 0.657, 0, 0,
+                        0, 0, 0.019, 0.682, 0,
+                        0, 0, 0, 0.061, 0.809),
+nrow = 5, ncol = 5, byrow = TRUE, dimnames = list(class_names, class_names))
+
+# Plot 
+n_0 <- c(1000, 10, 10, 10, 10) # Initial abundance
+
+pop_juvenile <- pop.projection(A_juvenile, n_0, iterations = 10) # Project the matrix forward. Package also provides plotting routine
+
+stage.vector.plot(pop_juvenile$stage.vector) # Plot each stage through time (proportion of each stage). Quickly population comes to be dominated by small juveniles. 
+
+#By default, the above code plots the proportions in each stage through time. To see the actual abundances, use
+stage.vector.plot(pop_juvenile$stage.vector, proportions = FALSE)
+
+
+lambda(A_juvenile)
+# Have to increase survivability to 1.5 to get lambda greater than one
+# Is this attainable? 
+# Also need to reduce bycatch to help adults 
+
+# Management practices can be more or less affective depending on which life cycle they are targeting
+```
+
